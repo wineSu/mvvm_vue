@@ -18,6 +18,7 @@ Observer.prototype = {
             configurable: true,
             get: function getter () {
                 //同一时间只能有一个watcher被计算
+                console.log(Dep.target)
                 if (Dep.target) {
                     dep.addSub(Dep.target);
                 }

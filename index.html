@@ -9,12 +9,14 @@
 <body>
     <div id="mvvm-app" style="text-align: center;margin-top:100px;">
         <input v-model="title">
+        <input v-model="aa">
+        <h2>{{aa}}</h2>
         <h2>{{title}}</h2>
         <h2>{{s.q}}</h2>
         <button v-on:click="clickBtn">数据初始化</button>
     </div>
 </body>
-<!-- <script src="./src/index.js"></script> -->
+<script src="./index.js"></script>
 <script type="text/javascript">
     var vm = new MVVM({
         el: '#mvvm-app',
@@ -22,7 +24,8 @@
             title: 'hello world',
             s:{
                 q:1
-            }
+            },
+            aa: 1
         },
         methods: {
             clickBtn (e) {

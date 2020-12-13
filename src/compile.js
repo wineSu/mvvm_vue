@@ -1,13 +1,13 @@
 import Watcher from './watcher'
-function Compile(el, vm) {
-    this.vm = vm;
-    this.el = document.querySelector(el);
-    this.fragment = null;
-    this.init();
-}
 
-Compile.prototype = {
-    init: function () {
+class Compile{
+    constructor(el, vm){
+        this.vm = vm;
+        this.el = document.querySelector(el);
+        this.fragment = null;
+        this.init();
+    }
+    init() {
         if (this.el) {
             this.fragment = this.nodeToFragment(this.el);
             //操作内存中的dom
@@ -16,8 +16,8 @@ Compile.prototype = {
         } else {
             console.log('Dom元素不存在');
         }
-    },
-    nodeToFragment: function (el) {
+    }
+    nodeToFragment(el) {
         var fragment = document.createDocumentFragment();
         var child = el.firstChild;
 
@@ -27,31 +27,29 @@ Compile.prototype = {
             child = el.firstChild
         }
         return fragment;
-    },
-    compileElement: function (el) {
+    }
+    compileElement(el) {
         var childNodes = el.childNodes;
-        var self = this;
-        [].slice.call(childNodes).forEach(function(node) {
+        [].slice.call(childNodes).forEach(node => {
             var reg = /\{\{(.*)\}\}/;
             var text = node.textContent;
-            if (self.isElementNode(node)) {
+            if (this.isElementNode(node)) {
                 //用户编写的dom节点 排除浏览器解析后自带的text节点
-                self.compile(node);
-            } else if (self.isTextNode(node) && reg.test(text)) {
+                this.compile(node);
+            } else if (this.isTextNode(node) && reg.test(text)) {
                 //{{title}}  节点中的内容
-                self.compileText(node, reg.exec(text)[1]);
+                this.compileText(node, reg.exec(text)[1]);
             }
-
             //递归子节点
             if (node.childNodes && node.childNodes.length) {
-                self.compileElement(node);
+                this.compileElement(node);
             }
         });
-    },
-    compile: function(node) {
+    }
+    compile(node) {
         var nodeAttrs = node.attributes;
         var self = this;
-        Array.prototype.forEach.call(nodeAttrs, function(attr) {
+        Array.prototype.forEach.call(nodeAttrs, (attr) => {
             var attrName = attr.name;
             //  v- 属性
             if (self.isDirective(attrName)) {
@@ -67,8 +65,8 @@ Compile.prototype = {
                 node.removeAttribute(attrName);
             }
         });
-    },
-    compileText: function(node, exp) {
+    }
+    compileText(node, exp) {
         var self = this;
         var initText = this.vm[exp];
         //首先赋值为初始定义的值
@@ -77,8 +75,8 @@ Compile.prototype = {
         new Watcher(this.vm, exp, function (value) {
             self.updateText(node, value);
         });
-    },
-    compileEvent: function (node, vm, exp, dir) {
+    }
+    compileEvent(node, vm, exp, dir) {
         //事件绑定
         var eventType = dir.split(':')[1];
         var cb = vm.methods && vm.methods[exp];
@@ -86,8 +84,8 @@ Compile.prototype = {
         if (eventType && cb) {
             node.addEventListener(eventType, cb.bind(vm), false);
         }
-    },
-    compileModel: function (node, vm, exp, dir) {
+    }
+    compileModel(node, vm, exp, dir) {
         var self = this;
         var val = this.vm[exp];
         //初始输入框赋值
@@ -105,23 +103,23 @@ Compile.prototype = {
             self.vm[exp] = newValue;
             val = newValue;
         });
-    },
-    updateText: function (node, value) {
+    }
+    updateText(node, value) {
         node.textContent = typeof value == 'undefined' ? '' : value;
-    },
-    modelUpdater: function(node, value, oldValue) {
+    }
+    modelUpdater(node, value, oldValue) {
         node.value = typeof value == 'undefined' ? '' : value;
-    },
-    isDirective: function(attr) {
+    }
+    isDirective(attr) {
         return attr.indexOf('v-') == 0;
-    },
-    isEventDirective: function(dir) {
+    }
+    isEventDirective(dir) {
         return dir.indexOf('on:') === 0;
-    },
-    isElementNode: function (node) {
+    }
+    isElementNode(node) {
         return node.nodeType == 1;
-    },
-    isTextNode: function(node) {
+    }
+    isTextNode(node) {
         return node.nodeType == 3;
     }
 }
